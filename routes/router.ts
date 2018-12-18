@@ -35,6 +35,30 @@ router.get('/reservas', (req: Request, res: Response) => {
 
 });
 
+router.get('/reservas/actual', (req: Request, res: Response) => {
+    var array_: any;
+    const reservas = new Reservas();
+    reservas.values('date').then(function (results) {
+        // console.log(results);
+        array_ = results;
+    }).then(function () {
+        res.status(200).json({
+            success: true,
+            message: 'Reservas actuales',
+            o: array_.length,
+            array: array_
+        })
+    }).catch(error => {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: error,
+            array: []
+        })
+    });
+
+});
+
 router.post('/messages/:id', (req: Request, res: Response) => {
     const body = req.body.body;
     const from = req.body.from;
