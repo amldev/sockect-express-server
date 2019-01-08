@@ -14,7 +14,7 @@ router.get('/messages', (req: Request, res: Response) => {
 router.get('/reservas', (req: Request, res: Response) => {
     var array_: any;
     const reservas = new Reservas();
-    reservas.values().then(function (results) {
+    reservas.values('date').then(function (results) {
         // console.log(results);
         array_ = results;
     }).then(function () {

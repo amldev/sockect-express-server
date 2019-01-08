@@ -54,7 +54,7 @@ export class Reservas {
                                     // console.log(item.exit_data);
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
-                                    const date = new Date(2018, 9, 1, 1, 0, 0);
+                                    const date = new Date(2017, 9, 13, 1, 0, 0);
                                     const currentTimeStamp = date.getTime();
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
                                         array.push(row);
@@ -67,13 +67,6 @@ export class Reservas {
                         } catch (e) {
 
                         }
-
-
-                        // if ()
-
-                        /*if (row.client.name === 'gonzalez montes magdalena') {
-                            array.push(row);
-                        }*/
 
                     });
                     resolve(array);
