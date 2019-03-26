@@ -11,10 +11,11 @@ router.get('/messages', (req: Request, res: Response) => {
     })
 });
 
-router.get('/reservas', (req: Request, res: Response) => {
+router.get('/reservas/:start/:finish', (req: Request, res: Response) => {
+    console.log(req.params)
     var array_: any;
     const reservas = new Reservas();
-    reservas.values('date').then(function (results) {
+    reservas.values().then(function (results) {
         // console.log(results);
         array_ = results;
     }).then(function () {
@@ -23,7 +24,7 @@ router.get('/reservas', (req: Request, res: Response) => {
             message: 'todos retrieved Hola!!',
             o: array_.length,
             array: array_
-        })
+        });
     }).catch(error => {
         console.error(error);
         res.status(500).json({
@@ -47,7 +48,11 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
             message: 'Reservas actuales',
             o: array_.length,
             array: array_
-        })
+        });
+
+        // To Send data to database
+        reservas.addInServer(array_);
+        
     }).catch(error => {
         console.error(error);
         res.status(500).json({

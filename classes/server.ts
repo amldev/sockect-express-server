@@ -34,7 +34,7 @@ export default class Server {
         console.log('Listen connections - sockets');
 
         this.io.on('connection', client => {
-            console.log('New client connect');
+            console.log('New client connect', client);
         })
     }
 

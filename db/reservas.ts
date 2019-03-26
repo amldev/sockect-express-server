@@ -79,6 +79,21 @@ export class Reservas {
         })
     }
 
+    addInServer(values: any) {
+        const request = require('request');
+        request.post({
+            headers: { 'content-type': 'application/json' },
+            url: 'https://mugan86.com/test/take_data.php',
+            body: JSON.stringify({ 'nombre': 'Anartz', 'edad': 33, 'values': values})
+        }, function (error: any, response: any, body: any) {
+            console.log(body);
+        });
+    }
+
+    showData() {
+
+    }
+
     takeClientInHotel() {
         // CUrrent data
         // console.log(arr.filter(e => e.foo === 'bar')); // [{foo: 'bar'}, {foo: 'bar'}]*/
