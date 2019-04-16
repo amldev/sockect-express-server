@@ -47,18 +47,18 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
             success: true,
             message: 'Reservas actuales',
             o: array_.length,
-            array: array_
+            list: array_
         });
 
         // To Send data to database
-        reservas.addInServer(array_);
+        // reservas.addInServer(array_);
         
     }).catch(error => {
         console.error(error);
         res.status(500).json({
             success: false,
             message: error,
-            array: []
+            list: []
         })
     });
 

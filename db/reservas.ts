@@ -1,3 +1,4 @@
+import { Capitalize } from './capitalize';
 const DBFFile = require('dbffile');
 const PATH_FILE = '/Volumes/DATA/Gesti\ Hotels/HTRES62.DBF';
 export class Reservas {
@@ -18,13 +19,13 @@ export class Reservas {
                 // Lo que se va a mostrar
                 .then((rows: any) => {
                     // console.log(rows)
-                    const array: any = [];
+                    const list: any = [];
                     rows.map((object: any) => {
                         try {
                             const row = {
                                 client: {
                                     id: object.R_CLI_USU,
-                                    name: object.R_NOMBRE
+                                    name: new Capitalize().transform(object.R_NOMBRE, true)
                                 },
                                 reservation: object.R_NUMERO,
                                 entry_data: object.R_F_ENTRA,
@@ -54,22 +55,23 @@ export class Reservas {
                                     // console.log(item.exit_data);
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
-                                    const date = new Date(2017, 9, 13, 1, 0, 0);
+                                    const currentDay = new Date();
+                                    const date = new Date(2018, 7, 15, 1, 0, 0);
                                     const currentTimeStamp = date.getTime();
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
-                                        array.push(row);
+                                        list.push(row);
                                     }
                                 }
 
                             } else {
-                                array.push(row);
+                                list.push(row);
                             }
                         } catch (e) {
 
                         }
 
                     });
-                    resolve(array);
+                    resolve(list);
 
                 })
                 .catch((err: any) => {
@@ -79,7 +81,7 @@ export class Reservas {
         })
     }
 
-    addInServer(values: any) {
+    /*addInServer(values: any) {
         const request = require('request');
         request.post({
             headers: { 'content-type': 'application/json' },
@@ -88,7 +90,7 @@ export class Reservas {
         }, function (error: any, response: any, body: any) {
             console.log(body);
         });
-    }
+    }*/
 
     showData() {
 
@@ -102,7 +104,7 @@ export class Reservas {
 
         return this.values().then(
             (value: any) => {
-                const array = [];
+                const list = [];
                 for (var i = 0; i < value.length; i++) {
                     const item = value[i];
                     try {
@@ -115,7 +117,7 @@ export class Reservas {
                             const entry = item.entry_data.getTime();
                             const exit = item.exit_data.getTime();
                             if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
-                                array.push(item);
+                                list.push(item);
                             }
 
                         }
@@ -125,7 +127,7 @@ export class Reservas {
                     }
                 }
                 console.log(currentTimeStamp);
-                return array;
+                return list;
             }
 
         ).catch(
