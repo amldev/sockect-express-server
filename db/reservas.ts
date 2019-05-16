@@ -1,6 +1,6 @@
 import { Capitalize } from './capitalize';
 const DBFFile = require('dbffile');
-const PATH_FILE = '/Volumes/DATA/Gesti\ Hotels/HTRES62.DBF';
+const PATH_FILE = '/Users/anartz/Documents/gestihotels/sockect-express-server/HTRES62.DBF';
 export class Reservas {
 
     values(filter?: string) {

@@ -13,7 +13,7 @@ export default class Server {
 
     public app: express.Application;
     public port: number;
-    private httpServer: http.Server;
+    private httpServer: any;
 
     private constructor() {
         this.app = express();
