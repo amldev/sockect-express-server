@@ -25,7 +25,7 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
             success: true,
             message: 'Reservas actuales',
             resume: resumeFoods,
-            currentDay: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+            selectDay: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
             results: array_.length,
             list: array_
         });
@@ -47,17 +47,20 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
 router.get('/reservas/:day', (req: Request, res: Response) => {
     console.log(req.params)
     var array_: any;
+    var resumeFoods: any;
     const reservas = new Reservas();
-    reservas.values('date', req.params.day).then(function (results) {
+    reservas.values('date', req.params.day).then(function (data: any) {
         // console.log(results);
-        array_ = results;
+        array_ = data.list;
+        resumeFoods = data.resume;
     }).then(function () {
         res.status(200).json({
             success: true,
             message: `${req.params.day} reservations list`,
-            currentDay: req.params.day,
+            selectDay: req.params.day,
             results: array_.length,
-            array: array_
+            resume: resumeFoods,
+            list: array_
         });
     }).catch(error => {
         console.error(error);

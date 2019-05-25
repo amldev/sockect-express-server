@@ -40,6 +40,10 @@ export default class Server {
 
     start(callback: Function) {
         this.httpServer.listen(this.port, callback);
+        this.httpServer.on('listening', function () {
+            // server ready to accept connections here
+            console.log('Hola!!');
+        });
     }
 
 }

@@ -1,6 +1,7 @@
 import { Capitalize } from './capitalize';
+import { FILE_PATH } from '../global/environment';
 const DBFFile = require('dbffile');
-const PATH_FILE = '/Users/anartz/Documents/gestihotels/sockect-express-server/HTRES63.DBF';
+const PATH_FILE = FILE_PATH;
 export class Reservas {
     values(filter?: string, date?: string) {
         
