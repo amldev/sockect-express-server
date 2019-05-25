@@ -1,9 +1,9 @@
 import { Capitalize } from './capitalize';
 const DBFFile = require('dbffile');
-const PATH_FILE = '/Users/anartz/Documents/gestihotels/sockect-express-server/HTRES62.DBF';
+const PATH_FILE = '/Users/anartz/Documents/gestihotels/sockect-express-server/HTRES63.DBF';
 export class Reservas {
-
-    values(filter?: string) {
+    values(filter?: string, date?: string) {
+        
         return new Promise(function (resolve, reject) {
             DBFFile.open(PATH_FILE)
                 .then((dbf: any) => {
@@ -20,6 +20,18 @@ export class Reservas {
                 .then((rows: any) => {
                     // console.log(rows)
                     const list: any = [];
+                    let resume: ResumeFoods = {
+                        stays: {
+                            pc: 0,
+                            mp: 0,
+                            de: 0
+                        },
+                        total_people: {
+                            pc: 0,
+                            mp: 0,
+                            de: 0
+                        }
+                    };
                     rows.map((object: any) => {
                         try {
                             const row = {
@@ -46,7 +58,20 @@ export class Reservas {
                                 td: object.R_PERS_TD,
                                 rooms_count: object.R_CANT_HB
                             };
+                            
                             if (filter === 'date') {
+                                
+                                let currentDay;
+                                if(date != undefined) {
+                                    // Extract day
+                                    const dateArray = date.split('-');
+
+                                    currentDay = new Date(+dateArray[0], +dateArray[1] - 1, +dateArray[2], 1, 0, 0);
+                                } else {
+                                    currentDay = new Date();
+                                    console.log(currentDay)
+                                }
+                                const currentTimeStamp = currentDay.getTime();
                                 if (row.entry_data !== undefined || row.entry_data !== null
                                     && row.exit_data !== undefined || row.exit_data !== null) {
                                     // console.log(i);
@@ -55,23 +80,27 @@ export class Reservas {
                                     // console.log(item.exit_data);
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
-                                    const currentDay = new Date();
-                                    const date = new Date(2018, 7, 15, 1, 0, 0);
-                                    const currentTimeStamp = date.getTime();
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
                                         list.push(row);
+                                        resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                     }
                                 }
 
                             } else {
                                 list.push(row);
+                                resume = new Reservas().countFoods(row.service, row.count_people, resume)
                             }
                         } catch (e) {
 
                         }
 
                     });
-                    resolve(list);
+                    console.log(resume);
+                    const results = {
+                        resume,
+                        list
+                    }
+                    resolve(results);
 
                 })
                 .catch((err: any) => {
@@ -79,6 +108,20 @@ export class Reservas {
                     reject(err);
                 });
         })
+    }
+
+    countFoods(service: string, stayCount: number, resume: any) {
+        if (service === 'MP') {
+            resume.total_people.mp = resume.total_people.mp + stayCount;
+            resume.stays.mp = resume.stays.mp + 1;
+        } else if (service === 'PC') {
+            resume.total_people.pc = resume.total_people.pc + stayCount;
+            resume.stays.pc = resume.stays.pc + 1;
+        } else if (service === 'DE') {
+            resume.stays.de = resume.stays.de + 1;
+            resume.total_people.de = resume.total_people.de + stayCount;
+        }
+        return resume;
     }
 
     /*addInServer(values: any) {
@@ -91,10 +134,6 @@ export class Reservas {
             console.log(body);
         });
     }*/
-
-    showData() {
-
-    }
 
     takeClientInHotel() {
         // CUrrent data
