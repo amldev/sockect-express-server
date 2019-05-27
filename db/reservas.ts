@@ -79,9 +79,44 @@ export class Reservas {
                                     // console.log(item.entry_data);
                                     // const exit = item.exit_data.getTime();
                                     // console.log(item.exit_data);
+
+                                    
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
+                                        /*if (row.rooms_count > 1) {
+                                            console.log(row.rooms_count);
+                                            // console.log(row.client, row.count_people, row.rooms_count, row.count_people / row.rooms_count)
+                                            for (var room = 0; room < row.rooms_count; room++) {
+                                                const item =  {
+                                                    client: {
+                                                        id: object.R_CLI_USU,
+                                                        name: new Capitalize().transform(object.R_NOMBRE, true)
+                                                    },
+                                                    reservation: object.R_NUMERO,
+                                                    entry_data: object.R_F_ENTRA,
+                                                    // 'entry_data_ts': object.R_F_ENTRA.getTime(),
+                                                    exit_data: object.R_F_SALIDA,
+                                                    // 'exit_data_ts': object.R_F_SALIDA.getTime(),
+                                                    service: object.R_SERVICIO,
+                                                    shift: {
+                                                        entry: object.R_S_ENTRA,
+                                                        exit: object.R_S_SALID,
+                                                    },
+                                                    room: {
+                                                        number: object.R_NUM_HAB,
+                                                        type: object.R_TIPO,
+                                                    },
+                                                    count_people: (object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count,
+                                                    tn: object.R_PERS_TN,
+                                                    td: object.R_PERS_TD,
+                                                    rooms_count: 1
+                                                };
+                                                console.log(room, item)
+                                            }
+                                        } else {
+                                            
+                                        }*/
                                         list.push(row);
                                         resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                     }
