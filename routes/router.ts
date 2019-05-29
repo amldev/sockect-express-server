@@ -16,6 +16,7 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
     var resumeFoods: any;
     const reservas = new Reservas();
     const date = new Date();
+    console.log(req.params);
     reservas.values('date').then(function (data: any) {
         // console.log(results);
         array_ = data.list;
@@ -44,19 +45,28 @@ router.get('/reservas/actual', (req: Request, res: Response) => {
 
 });
 
-router.get('/reservas/:day', (req: Request, res: Response) => {
-    console.log(req.params)
+router.get('/reservas/:day/:regimen*?', (req: Request, res: Response) => {
+    
     var array_: any;
     var resumeFoods: any;
     const reservas = new Reservas();
-    reservas.values('date', req.params.day).then(function (data: any) {
+    let message = `${req.params.day} reservations list`
+    if (req.params.day === 'actual') {
+        message = 'Reservas actuales';
+        req.params.day = new Date().toISOString().substring(0, 10);
+    }
+    if(req.params.regimen === undefined) {
+        req.params.regimen = '-';
+    }
+    console.log(req.params);
+    reservas.values('date', req.params.day, req.params.regimen).then(function (data: any) {
         // console.log(results);
         array_ = data.list;
         resumeFoods = data.resume;
     }).then(function () {
         res.status(200).json({
             success: true,
-            message: `${req.params.day} reservations list`,
+            message,
             selectDay: req.params.day,
             results: array_.length,
             resume: resumeFoods,

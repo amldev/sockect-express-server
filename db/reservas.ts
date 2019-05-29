@@ -3,8 +3,7 @@ import { FILE_PATH } from '../global/environment';
 const DBFFile = require('dbffile');
 const PATH_FILE = FILE_PATH;
 export class Reservas {
-    values(filter?: string, date?: string) {
-        
+    values(filter?: string, date?: string, shift?: string) {
         return new Promise(function (resolve, reject) {
             DBFFile.open(PATH_FILE)
                 .then((dbf: any) => {
@@ -20,7 +19,7 @@ export class Reservas {
                 // Lo que se va a mostrar
                 .then((rows: any) => {
                     // console.log(rows)
-                    const list: any = [];
+                    let list: any = [];
                     let resume: ResumeFoods = {
                         stays: {
                             pc: 0,
@@ -34,7 +33,11 @@ export class Reservas {
                         }
                     };
                     rows.map((object: any) => {
+                        if (object.R_NOMBRE === 'victor puyol') {
+                            console.log('OK!!! Victor Puyol');
+                        }
                         try {
+                            const reservationItems = new Reservas().search(object.R_NUMERO, object.R_CLI_USU, list);
                             const row = {
                                 client: {
                                     id: object.R_CLI_USU,
@@ -57,7 +60,8 @@ export class Reservas {
                                 count_people: object.R_PERS_TN + object.R_PERS_TD,
                                 tn: object.R_PERS_TN,
                                 td: object.R_PERS_TD,
-                                rooms_count: object.R_CANT_HB
+                                rooms_count: object.R_CANT_HB,
+                                r_internal: object.R_POSIC
                             };
                             
                             if (filter === 'date') {
@@ -70,7 +74,7 @@ export class Reservas {
                                     currentDay = new Date(+dateArray[0], +dateArray[1] - 1, +dateArray[2], 1, 0, 0);
                                 } else {
                                     currentDay = new Date();
-                                    console.log(currentDay)
+                                    // console.log(currentDay)
                                 }
                                 const currentTimeStamp = currentDay.getTime();
                                 if (row.entry_data !== undefined || row.entry_data !== null
@@ -84,52 +88,29 @@ export class Reservas {
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
-                                        /*if (row.rooms_count > 1) {
-                                            console.log(row.rooms_count);
-                                            // console.log(row.client, row.count_people, row.rooms_count, row.count_people / row.rooms_count)
-                                            for (var room = 0; room < row.rooms_count; room++) {
-                                                const item =  {
-                                                    client: {
-                                                        id: object.R_CLI_USU,
-                                                        name: new Capitalize().transform(object.R_NOMBRE, true)
-                                                    },
-                                                    reservation: object.R_NUMERO,
-                                                    entry_data: object.R_F_ENTRA,
-                                                    // 'entry_data_ts': object.R_F_ENTRA.getTime(),
-                                                    exit_data: object.R_F_SALIDA,
-                                                    // 'exit_data_ts': object.R_F_SALIDA.getTime(),
-                                                    service: object.R_SERVICIO,
-                                                    shift: {
-                                                        entry: object.R_S_ENTRA,
-                                                        exit: object.R_S_SALID,
-                                                    },
-                                                    room: {
-                                                        number: object.R_NUM_HAB,
-                                                        type: object.R_TIPO,
-                                                    },
-                                                    count_people: (object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count,
-                                                    tn: object.R_PERS_TN,
-                                                    td: object.R_PERS_TD,
-                                                    rooms_count: 1
-                                                };
-                                                console.log(room, item)
+                                        if (shift === 'mp' || shift === 'pc' || shift === 'de' || shift === 'sa' 
+                                        || shift === 'MP' || shift === 'PC' || shift === 'DE' || shift === 'SA') {
+                                            if (row.service === shift.toUpperCase()) {
+                                                console.log(row);
+                                                list = new Reservas().moreRooms(object, row, list);
+                                                // list.push(row);
+                                                resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                             }
+                                            return;
                                         } else {
-                                            
-                                        }*/
-                                        list.push(row);
-                                        resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                            list = new Reservas().moreRooms(object, row, list);
+                                            resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                        }
                                     }
                                 }
 
                             } else {
-                                list.push(row);
+                                list = new Reservas().moreRooms(object, row, list);
                                 resume = new Reservas().countFoods(row.service, row.count_people, resume)
                             }
                         } catch (e) {
 
                         }
-
                     });
                     console.log(resume);
                     const results = {
@@ -209,4 +190,68 @@ export class Reservas {
             e => e
         );
     }
+    moreRooms (object: any, row: any, list: any) {
+        if (row.rooms_count > 1) {
+            // console.log('rooms', row.rooms_count);
+            let rooms = [];
+            if ((object.R_PERS_TN + object.R_PERS_TD) % row.rooms_count != 0) {
+                console.log((object.R_PERS_TN + object.R_PERS_TD) + " Persons in room and " + row.rooms_count);
+                console.log(new Capitalize().transform(object.R_NOMBRE, true));
+                const rest = (object.R_PERS_TN + object.R_PERS_TD) % row.rooms_count;
+                const peoplePerRoom = Math.floor((object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count);
+                if (row.rooms_count === 2) {
+                    rooms.push(peoplePerRoom);
+                    rooms.push(peoplePerRoom + rest);
+                } else {
+
+                }
+            } else {
+                const peoplePerRoom = Math.floor(object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count;
+            }
+            for (var room = 0; room < row.rooms_count; room++) {
+                console.log(rooms[room]);
+                const item =  {
+                    client: {
+                        id: object.R_CLI_USU,
+                        name: new Capitalize().transform(object.R_NOMBRE, true)
+                    },
+                    reservation: object.R_NUMERO,
+                    entry_data: object.R_F_ENTRA,
+                    // 'entry_data_ts': object.R_F_ENTRA.getTime(),
+                    exit_data: object.R_F_SALIDA,
+                    // 'exit_data_ts': object.R_F_SALIDA.getTime(),
+                    service: object.R_SERVICIO,
+                    shift: {
+                        entry: object.R_S_ENTRA,
+                        exit: object.R_S_SALID,
+                    },
+                    room: {
+                        number: object.R_NUM_HAB,
+                        type: object.R_TIPO,
+                    },
+                    count_people: rooms[room],
+                    tn: object.R_PERS_TN,
+                    td: object.R_PERS_TD,
+                    rooms_count: 1,
+                    r_internal: object.R_POSIC
+                };
+                // console.log(room, item)
+                list.push(item);
+            }
+            return list;
+        }
+        // console.log(row);
+        list.push(row);
+        return list;
+    }
+    search(numberReservation: string, client: number, myArray: any){
+        const list = [];
+        for (var i=0; i < myArray.length; i++) {
+            if (myArray[i].reservation === numberReservation && myArray[i].client.id === client) {
+              list.push(myArray[i])
+            }
+        }
+        return list;
+    }
 }
+
