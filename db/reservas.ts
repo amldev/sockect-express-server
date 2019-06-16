@@ -38,6 +38,13 @@ export class Reservas {
                         }
                         try {
                             const reservationItems = new Reservas().search(object.R_NUMERO, object.R_CLI_USU, list);
+                            let persTD;
+                            if (object.R_PERS_TD === null || object.R_PERS_TD === undefined) {
+                                persTD = 0
+                            } else {
+                                persTD = object.R_PERS_TD
+                            }
+                            // console.log('TD', persTD)
                             const row = {
                                 client: {
                                     id: object.R_CLI_USU,
@@ -57,11 +64,12 @@ export class Reservas {
                                     number: object.R_NUM_HAB,
                                     type: object.R_TIPO,
                                 },
-                                count_people: object.R_PERS_TN + object.R_PERS_TD,
+                                count_people: object.R_PERS_TN + persTD,
                                 tn: object.R_PERS_TN,
-                                td: object.R_PERS_TD,
+                                td: persTD,
                                 rooms_count: object.R_CANT_HB,
-                                r_internal: object.R_POSIC
+                                r_internal: object.R_POSIC,
+                                status: object.R_STATUS
                             };
                             
                             if (filter === 'date') {
@@ -87,17 +95,22 @@ export class Reservas {
                                     
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
+                                    // Adaptar al formato normal
+                                    row.entry_data = new Reservas().transformDate(object.R_F_ENTRA);
+                                    row.exit_data = new Reservas().transformDate(object.R_F_SALIDA);
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
+                                        console.log(object.R_NOMBRE, object.R_STATUS, row.count_people);
                                         if (shift === 'mp' || shift === 'pc' || shift === 'de' || shift === 'sa' 
                                         || shift === 'MP' || shift === 'PC' || shift === 'DE' || shift === 'SA') {
                                             if (row.service === shift.toUpperCase()) {
-                                                console.log(row);
+                                                console.log('-----', row);
                                                 list = new Reservas().moreRooms(object, row, list);
                                                 // list.push(row);
                                                 resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                             }
                                             return;
                                         } else {
+                                            console.log('---- SIN TURNO!!');
                                             list = new Reservas().moreRooms(object, row, list);
                                             resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                         }
@@ -191,25 +204,34 @@ export class Reservas {
         );
     }
     moreRooms (object: any, row: any, list: any) {
+        // console.log(object);
+        console.log(row);
+        if (row.client.name === 'Scussel Fabio') {
+            console.log('Scussel', row.rooms_count);
+        }
         if (row.rooms_count > 1) {
             // console.log('rooms', row.rooms_count);
             let rooms = [];
-            if ((object.R_PERS_TN + object.R_PERS_TD) % row.rooms_count != 0) {
-                console.log((object.R_PERS_TN + object.R_PERS_TD) + " Persons in room and " + row.rooms_count);
+            const persTD = (object.R_PERS_TD === null) ? 0: object.R_PERS_TD;
+            let peoplePerRoom;
+            if ((object.R_PERS_TN + persTD) % row.rooms_count != 0) {
+                console.log((object.R_PERS_TN + persTD) + " Persons in room and " + row.rooms_count);
                 console.log(new Capitalize().transform(object.R_NOMBRE, true));
-                const rest = (object.R_PERS_TN + object.R_PERS_TD) % row.rooms_count;
-                const peoplePerRoom = Math.floor((object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count);
+                const rest = (object.R_PERS_TN + persTD) % row.rooms_count;
+                const peoplePerRoom = Math.floor((object.R_PERS_TN + persTD) / row.rooms_count);
                 if (row.rooms_count === 2) {
+                    console.log(peoplePerRoom, peoplePerRoom + rest)
                     rooms.push(peoplePerRoom);
                     rooms.push(peoplePerRoom + rest);
                 } else {
-
+                    console.log(row.rooms_count, 'rroms count');
                 }
             } else {
-                const peoplePerRoom = Math.floor(object.R_PERS_TN + object.R_PERS_TD) / row.rooms_count;
+                peoplePerRoom = Math.floor(object.R_PERS_TN + persTD) / row.rooms_count;
+                console.log(peoplePerRoom);
             }
             for (var room = 0; room < row.rooms_count; room++) {
-                console.log(rooms[room]);
+                console.log(rooms);
                 const item =  {
                     client: {
                         id: object.R_CLI_USU,
@@ -229,11 +251,12 @@ export class Reservas {
                         number: object.R_NUM_HAB,
                         type: object.R_TIPO,
                     },
-                    count_people: rooms[room],
+                    count_people: peoplePerRoom,
                     tn: object.R_PERS_TN,
-                    td: object.R_PERS_TD,
+                    td: persTD,
                     rooms_count: 1,
-                    r_internal: object.R_POSIC
+                    r_internal: object.R_POSIC,
+                    status: object.R_STATUS
                 };
                 // console.log(room, item)
                 list.push(item);
@@ -252,6 +275,26 @@ export class Reservas {
             }
         }
         return list;
+    }
+
+   
+    transformDate(data: any, showHour: boolean = false): string {
+        const date = new Date(String(data));
+        const dayOfMonth = new Reservas().formatNumbers(date.getDate());
+        const month = new Reservas().formatNumbers(date.getMonth() + 1);
+        const year = date.getFullYear();
+
+        if (!showHour) {
+        return `${year}-${month}-${dayOfMonth}`;
+        }
+
+        const hour = new Reservas().formatNumbers(date.getHours());
+        const mins = new Reservas().formatNumbers(date.getMinutes());
+        return `${year}-${month}-${dayOfMonth} ${hour}:${mins}`;
+    }
+
+    private formatNumbers(n: number): string {
+        return (n < 10) ? '0'.concat(n.toString()) : n.toString();
     }
 }
 

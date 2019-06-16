@@ -43,6 +43,14 @@ export default class Server {
         this.httpServer.on('listening', function () {
             // server ready to accept connections here
             console.log('Hola!!');
+            const request = require('request');
+            request.get({
+                headers: { 'content-type': 'application/json' },
+                url: 'http://localhost:5000/reservas/actual'
+            }, function (error: any, response: any, body: any) {
+                const re_ = JSON.parse(body);
+                // console.log(re_.list);
+            });
         });
     }
 
