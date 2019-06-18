@@ -61,7 +61,7 @@ export class Reservas {
                                     exit: object.R_S_SALID,
                                 },
                                 room: {
-                                    number: (object.R_NUM_HAB === '') ? 0 : object.R_NUM_HAB,
+                                    number: object.R_NUM_HAB,
                                     type: object.R_TIPO,
                                 },
                                 count_people: object.R_PERS_TN + persTD,
@@ -125,7 +125,7 @@ export class Reservas {
 
                         }
                     });
-                    console.log(resume);
+                    // console.log(resume);
                     const results = {
                         resume,
                         list
@@ -205,7 +205,7 @@ export class Reservas {
     }
     moreRooms (object: any, row: any, list: any) {
         // console.log(object);
-        console.log(row);
+        // console.log(row);
         if (row.rooms_count > 1) {
             // console.log('rooms', row.rooms_count);
             let rooms = [];
@@ -245,7 +245,7 @@ export class Reservas {
                         exit: object.R_S_SALID,
                     },
                     room: {
-                        number: (object.R_NUM_HAB === '') ? 0 : object.R_NUM_HAB,
+                        number: object.R_NUM_HAB,
                         type: object.R_TIPO,
                     },
                     count_people: peoplePerRoom,
