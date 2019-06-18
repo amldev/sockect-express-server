@@ -1,4 +1,4 @@
-interface ResumeFoods {
+export interface ResumeFoods {
     stays: {
         pc: number,
         mp: number,

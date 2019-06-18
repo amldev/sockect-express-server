@@ -7,7 +7,9 @@
     "start": "nodemon dist/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "start:dev": "npm run build:dev",
+    "build:dev": "nodemon 'index.ts' --exec 'ts-node' index.ts -e ts,json"
   },
   "keywords": [],
   "author": "",

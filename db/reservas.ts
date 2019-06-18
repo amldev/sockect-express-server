@@ -1,5 +1,7 @@
 import { Capitalize } from './capitalize';
 import { FILE_PATH } from '../global/environment';
+import { ResumeFoods} from './../interfaces/resume-foods';
+
 const DBFFile = require('dbffile');
 const PATH_FILE = FILE_PATH;
 export class Reservas {
@@ -33,11 +35,9 @@ export class Reservas {
                         }
                     };
                     rows.map((object: any) => {
-                        if (object.R_NOMBRE === 'victor puyol') {
-                            console.log('OK!!! Victor Puyol');
-                        }
+                        
                         try {
-                            const reservationItems = new Reservas().search(object.R_NUMERO, object.R_CLI_USU, list);
+                            new Reservas().search(object.R_NUMERO, object.R_CLI_USU, list);
                             let persTD;
                             if (object.R_PERS_TD === null || object.R_PERS_TD === undefined) {
                                 persTD = 0
@@ -61,7 +61,7 @@ export class Reservas {
                                     exit: object.R_S_SALID,
                                 },
                                 room: {
-                                    number: object.R_NUM_HAB,
+                                    number: (object.R_NUM_HAB === '') ? 0 : object.R_NUM_HAB,
                                     type: object.R_TIPO,
                                 },
                                 count_people: object.R_PERS_TN + persTD,
@@ -99,7 +99,7 @@ export class Reservas {
                                     row.entry_data = new Reservas().transformDate(object.R_F_ENTRA);
                                     row.exit_data = new Reservas().transformDate(object.R_F_SALIDA);
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
-                                        console.log(object.R_NOMBRE, object.R_STATUS, row.count_people);
+                                        // console.log(object.R_NOMBRE, object.R_STATUS, row.count_people);
                                         if (shift === 'mp' || shift === 'pc' || shift === 'de' || shift === 'sa' 
                                         || shift === 'MP' || shift === 'PC' || shift === 'DE' || shift === 'SA') {
                                             if (row.service === shift.toUpperCase()) {
@@ -110,7 +110,7 @@ export class Reservas {
                                             }
                                             return;
                                         } else {
-                                            console.log('---- SIN TURNO!!');
+                                            // console.log('---- SIN TURNO!!');
                                             list = new Reservas().moreRooms(object, row, list);
                                             resume = new Reservas().countFoods(row.service, row.count_people, resume);
                                         }
@@ -206,9 +206,6 @@ export class Reservas {
     moreRooms (object: any, row: any, list: any) {
         // console.log(object);
         console.log(row);
-        if (row.client.name === 'Scussel Fabio') {
-            console.log('Scussel', row.rooms_count);
-        }
         if (row.rooms_count > 1) {
             // console.log('rooms', row.rooms_count);
             let rooms = [];
@@ -248,14 +245,14 @@ export class Reservas {
                         exit: object.R_S_SALID,
                     },
                     room: {
-                        number: object.R_NUM_HAB,
+                        number: (object.R_NUM_HAB === '') ? 0 : object.R_NUM_HAB,
                         type: object.R_TIPO,
                     },
                     count_people: peoplePerRoom,
                     tn: object.R_PERS_TN,
                     td: persTD,
                     rooms_count: 1,
-                    r_internal: object.R_POSIC,
+                    r_internal: object.R_POSIC + room,
                     status: object.R_STATUS
                 };
                 // console.log(room, item)
