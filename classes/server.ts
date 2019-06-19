@@ -5,8 +5,6 @@ import express from 'express';
 import socketIO from 'socket.io';
 
 import http from 'http';
-import { NutritionalRegimenValues } from '../enums/nutritional_regimen';
-import { FoodShiftValues } from '../enums/food-shifts';
 
 export default class Server {
 
@@ -41,33 +39,30 @@ export default class Server {
     }
 
     start(callback: Function) {
+        this.update();
         this.httpServer.listen(this.port, callback);
-        this.httpServer.on('listening', function () {
-            // server ready to accept connections here
-            console.log('Hola!!');
+    }
+
+    update() {
+        console.log('Start to add / update active stays in current day');
+        const request = require('request');
+        request.get({
+            headers: { 'content-type': 'application/json' },
+            url: 'http://localhost:5000/reservas/actual'
+        }, function (error: any, response: Response, body: any) {
+            const re_ = JSON.parse(body);
+            const reservas = re_.list;
             const request = require('request');
-            request.get({
+            request.post({
                 headers: { 'content-type': 'application/json' },
-                url: 'http://localhost:5000/reservas/actual'
-            }, function (error: any, response: any, body: any) {
-                const re_ = JSON.parse(body);
-                // console.log(re_.list);
-                const reservas = re_.list;
-                let anulaciones = 0;
-                let clientAdd = false;
-                const request = require('request');
-                request.post({
-                    headers: { 'content-type': 'application/json' },
-                    url: 'http://127.0.0.1:8000/api/stays/add/clients',
-                    body: JSON.stringify(
-                        { 
-                            'list': reservas
-                        })
-                }, function (error: any, response: any, body: any) {
-                    // console.log(body);
-                });
+                url: 'http://127.0.0.1:8000/api/stays/add/clients',
+                body: JSON.stringify(
+                    { 
+                        'list': reservas
+                    })
+            }, function (error: any, response: Response, body: any) {
+                console.log(body);
             });
         });
     }
-
 }

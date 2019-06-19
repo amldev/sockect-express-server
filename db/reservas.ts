@@ -217,7 +217,7 @@ export class Reservas {
                 const rest = (object.R_PERS_TN + persTD) % row.rooms_count;
                 const peoplePerRoom = Math.floor((object.R_PERS_TN + persTD) / row.rooms_count);
                 if (row.rooms_count === 2) {
-                    console.log(peoplePerRoom, peoplePerRoom + rest)
+                    //  console.log(peoplePerRoom, peoplePerRoom + rest)
                     rooms.push(peoplePerRoom);
                     rooms.push(peoplePerRoom + rest);
                 } else {
@@ -225,19 +225,19 @@ export class Reservas {
                 }
             } else {
                 peoplePerRoom = Math.floor(object.R_PERS_TN + persTD) / row.rooms_count;
-                console.log(peoplePerRoom);
+                // console.log('Multiplo', peoplePerRoom);
             }
             for (var room = 0; room < row.rooms_count; room++) {
-                console.log(rooms);
+                console.log(room, rooms);
                 const item =  {
                     client: {
                         id: object.R_CLI_USU,
                         name: new Capitalize().transform(object.R_NOMBRE, true)
                     },
                     reservation: object.R_NUMERO,
-                    entry_data: object.R_F_ENTRA,
+                    entry_data: new Reservas().transformDate(object.R_F_ENTRA),
                     // 'entry_data_ts': object.R_F_ENTRA.getTime(),
-                    exit_data: object.R_F_SALIDA,
+                    exit_data: new Reservas().transformDate(object.R_F_SALIDA),
                     // 'exit_data_ts': object.R_F_SALIDA.getTime(),
                     service: object.R_SERVICIO,
                     shift: {

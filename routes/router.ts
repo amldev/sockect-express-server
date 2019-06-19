@@ -11,6 +11,33 @@ router.get('/messages', (req: Request, res: Response) => {
     })
 });
 
+router.get('active/stays', (req: Request, res: Response) => {
+    // server ready to accept connections here
+    console.log('Hola!!');
+    const request = require('request');
+    request.get({
+        headers: { 'content-type': 'application/json' },
+        url: 'http://localhost:5000/reservas/actual'
+    }, function (error: any, response: any, body: any) {
+        const re_ = JSON.parse(body);
+        // console.log(re_.list);
+        const reservas = re_.list;
+        let anulaciones = 0;
+        let clientAdd = false;
+        const request = require('request');
+        request.post({
+            headers: { 'content-type': 'application/json' },
+            url: 'http://127.0.0.1:8000/api/stays/add/clients',
+            body: JSON.stringify(
+                { 
+                    'list': reservas
+                })
+        }, function (error: any, response: any, body: any) {
+            console.log(body);
+        });
+    });
+})
+
 router.get('/reservas/actual', (req: Request, res: Response) => {
     var array_: any;
     var resumeFoods: any;
