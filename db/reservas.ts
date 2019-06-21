@@ -209,18 +209,20 @@ export class Reservas {
         if (row.rooms_count > 1) {
             // console.log('rooms', row.rooms_count);
             let rooms = [];
+            let rest = 0;
             const persTD = (object.R_PERS_TD === null) ? 0: object.R_PERS_TD;
             let peoplePerRoom;
             if ((object.R_PERS_TN + persTD) % row.rooms_count != 0) {
-                console.log((object.R_PERS_TN + persTD) + " Persons in room and " + row.rooms_count);
+                console.log((object.R_PERS_TN + persTD) + " Persons in rooms total:" + row.rooms_count);
                 console.log(new Capitalize().transform(object.R_NOMBRE, true));
-                const rest = (object.R_PERS_TN + persTD) % row.rooms_count;
-                const peoplePerRoom = Math.floor((object.R_PERS_TN + persTD) / row.rooms_count);
+                rest = (object.R_PERS_TN + persTD) % row.rooms_count;
+                peoplePerRoom = Math.floor((object.R_PERS_TN + persTD) / row.rooms_count);
                 if (row.rooms_count === 2) {
                     //  console.log(peoplePerRoom, peoplePerRoom + rest)
                     rooms.push(peoplePerRoom);
                     rooms.push(peoplePerRoom + rest);
                 } else {
+                    console.log(rest);
                     console.log(row.rooms_count, 'rroms count');
                 }
             } else {
@@ -229,6 +231,13 @@ export class Reservas {
             }
             for (var room = 0; room < row.rooms_count; room++) {
                 console.log(room, rooms);
+                let peopleTotalCount = peoplePerRoom;
+                // Si la habitación en reservas multiples no da números exactos y tenemos un resto de personas
+                // Que hay que colocar en las demás habitaciones
+                if(rest > 0) {
+                    peopleTotalCount++;
+                    rest--;
+                }
                 const item =  {
                     client: {
                         id: object.R_CLI_USU,
@@ -248,7 +257,7 @@ export class Reservas {
                         number: object.R_NUM_HAB,
                         type: object.R_TIPO,
                     },
-                    count_people: peoplePerRoom,
+                    count_people: peopleTotalCount,
                     tn: object.R_PERS_TN,
                     td: persTD,
                     rooms_count: 1,
