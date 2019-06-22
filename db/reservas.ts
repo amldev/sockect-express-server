@@ -104,22 +104,29 @@ export class Reservas {
                                         || shift === 'MP' || shift === 'PC' || shift === 'DE' || shift === 'SA') {
                                             if (row.service === shift.toUpperCase()) {
                                                 console.log('-----', row);
-                                                list = new Reservas().moreRooms(object, row, list);
-                                                // list.push(row);
-                                                resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                                if (object.R_STATUS !== 'A') {
+                                                    list = new Reservas().moreRooms(object, row, list);
+                                                    // list.push(row);
+                                                    resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                                }
                                             }
                                             return;
                                         } else {
                                             // console.log('---- SIN TURNO!!');
-                                            list = new Reservas().moreRooms(object, row, list);
-                                            resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                            if (object.R_STATUS !== 'A') {
+                                                list = new Reservas().moreRooms(object, row, list);
+                                                resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                            }
                                         }
                                     }
                                 }
 
                             } else {
-                                list = new Reservas().moreRooms(object, row, list);
-                                resume = new Reservas().countFoods(row.service, row.count_people, resume)
+                                if (object.R_STATUS !== 'A') {
+                                    list = new Reservas().moreRooms(object, row, list);
+                                    resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                }
+                                
                             }
                         } catch (e) {
 
