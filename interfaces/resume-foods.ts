@@ -8,5 +8,10 @@ export interface ResumeFoods {
         pc: number,
         mp: number,
         de: number
+    },
+    foods: {
+        breakfast: number;
+        lunch: number;
+        dinner: number;
     }
 }

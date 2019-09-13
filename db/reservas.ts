@@ -32,6 +32,11 @@ export class Reservas {
                             pc: 0,
                             mp: 0,
                             de: 0
+                        },
+                        foods: {
+                            breakfast: 0,
+                            lunch: 0,
+                            dinner: 0
                         }
                     };
                     rows.map((object: any) => {
@@ -80,12 +85,13 @@ export class Reservas {
                                 currentDay = new Date();
                                 // console.log(currentDay)
                             }
+                            const entry = row.entry_data.getTime();
+                            const exit = row.exit_data.getTime();
                             if (filter === 'date') {
                                 const currentTimeStamp = currentDay.getTime();
                                 if (row.entry_data !== undefined || row.entry_data !== null
                                     && row.exit_data !== undefined || row.exit_data !== null) {
-                                    const entry = row.entry_data.getTime();
-                                    const exit = row.exit_data.getTime();
+                                    
                                     row.entry_data = new Reservas().transformDate(object.R_F_ENTRA);
                                     row.exit_data = new Reservas().transformDate(object.R_F_SALIDA);
                                     
@@ -97,7 +103,7 @@ export class Reservas {
                                                 if (object.R_STATUS !== 'A') {
                                                     list = new Reservas().moreRooms(object, row, list);
                                                     // list.push(row);
-                                                    resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data, row.count_people, resume, row.shift, currentDay);
+                                                    resume = new Reservas().countFoods(row.service, entry, exit, row.count_people, resume, row.shift, currentDay);
                                                 }
                                             }
                                             return;
@@ -105,7 +111,7 @@ export class Reservas {
                                             // console.log('---- SIN TURNO!!');
                                             if (object.R_STATUS !== 'A') {
                                                 list = new Reservas().moreRooms(object, row, list);
-                                                resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data, row.count_people, resume, row.shift, currentDay);
+                                                resume = new Reservas().countFoods(row.service, entry, exit, row.count_people, resume, row.shift, currentDay);
                                             }
                                         }
                                     }
@@ -114,7 +120,7 @@ export class Reservas {
                             } else {
                                 if (object.R_STATUS !== 'A') {
                                     list = new Reservas().moreRooms(object, row, list);
-                                    resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data,row.count_people, resume, row.shift, currentDay);
+                                    resume = new Reservas().countFoods(row.service, entry, exit,row.count_people, resume, row.shift, currentDay);
                                 }
                                 
                             }
@@ -137,15 +143,45 @@ export class Reservas {
         })
     }
 
-    countFoods(service: string, entry: string, exit: string, stayCount: number, resume: any, shift: any, currentDay: any) {
+    countFoods(service: string, entry: any, exit: any, stayCount: number, resume: any, shift: any, currentDay: any) {
         if (service === 'MP') {
+            if (entry !== currentDay.getTime()) {
+                resume.foods.breakfast = resume.foods.breakfast + stayCount;
+            }
+            if (exit !== currentDay.getTime()) {
+                resume.foods.dinner = resume.foods.dinner + stayCount;
+            }
+            
+            console.log('Sale hoy? ', exit === currentDay.getTime());
+            console.log(shift, entry, exit, service, currentDay.getTime());
+            console.log('Entra hoy? ', entry === currentDay.getTime());
+            
             resume.total_people.mp = resume.total_people.mp + stayCount;
             resume.stays.mp = resume.stays.mp + 1;
         } else if (service === 'PC') {
-            console.log(shift, entry, exit, service, currentDay);
+            console.log(shift, entry, exit, service, currentDay.getTime());
+            // console.log('Sale hoy? ', exit === currentDay.getTime());
+            // Desayuno
+            resume.foods.breakfast = resume.foods.breakfast + stayCount;
+            // Comida
+            if (exit === currentDay.getTime()) {
+                if (shift.exit === 'A') {
+                    resume.foods.lunch = resume.foods.lunch + stayCount;
+                }
+            } else if (entry <= currentDay.getTime() && exit >= currentDay.getTime()){
+                resume.foods.lunch = resume.foods.lunch + stayCount;
+            } else if (entry === currentDay.getTime()) {
+                if (shift.entry === 'A') {
+                    resume.foods.lunch = resume.foods.lunch + stayCount;
+                }
+            }
+            resume.foods.dinner = resume.foods.dinner + stayCount;
             resume.total_people.pc = resume.total_people.pc + stayCount;
             resume.stays.pc = resume.stays.pc + 1;
         } else if (service === 'DE') {
+            if (entry !== currentDay.getTime()) {
+                resume.foods.breakfast = resume.foods.breakfast + stayCount;
+            }
             resume.stays.de = resume.stays.de + 1;
             resume.total_people.de = resume.total_people.de + stayCount;
         }
