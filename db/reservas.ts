@@ -71,43 +71,33 @@ export class Reservas {
                                 r_internal: object.R_POSIC,
                                 status: object.R_STATUS
                             };
-                            
+                            let currentDay;
+                            if(date != undefined) {
+                                // Extract day
+                                const dateArray = date.split('-');
+                                currentDay = new Date(+dateArray[0], +dateArray[1] - 1, +dateArray[2], 0, 0, 0);
+                            } else {
+                                currentDay = new Date();
+                                // console.log(currentDay)
+                            }
                             if (filter === 'date') {
-                                
-                                let currentDay;
-                                if(date != undefined) {
-                                    // Extract day
-                                    const dateArray = date.split('-');
-
-                                    currentDay = new Date(+dateArray[0], +dateArray[1] - 1, +dateArray[2], 1, 0, 0);
-                                } else {
-                                    currentDay = new Date();
-                                    // console.log(currentDay)
-                                }
                                 const currentTimeStamp = currentDay.getTime();
                                 if (row.entry_data !== undefined || row.entry_data !== null
                                     && row.exit_data !== undefined || row.exit_data !== null) {
-                                    // console.log(i);
-                                    // console.log(item.entry_data);
-                                    // const exit = item.exit_data.getTime();
-                                    // console.log(item.exit_data);
-
-                                    
                                     const entry = row.entry_data.getTime();
                                     const exit = row.exit_data.getTime();
-                                    // Adaptar al formato normal
                                     row.entry_data = new Reservas().transformDate(object.R_F_ENTRA);
                                     row.exit_data = new Reservas().transformDate(object.R_F_SALIDA);
+                                    
                                     if (entry <= currentTimeStamp && exit >= currentTimeStamp) {
-                                        // console.log(object.R_NOMBRE, object.R_STATUS, row.count_people);
                                         if (shift === 'mp' || shift === 'pc' || shift === 'de' || shift === 'sa' 
                                         || shift === 'MP' || shift === 'PC' || shift === 'DE' || shift === 'SA') {
                                             if (row.service === shift.toUpperCase()) {
-                                                console.log('-----', row);
+                                                // console.log('-----', row);
                                                 if (object.R_STATUS !== 'A') {
                                                     list = new Reservas().moreRooms(object, row, list);
                                                     // list.push(row);
-                                                    resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                                    resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data, row.count_people, resume, row.shift, currentDay);
                                                 }
                                             }
                                             return;
@@ -115,7 +105,7 @@ export class Reservas {
                                             // console.log('---- SIN TURNO!!');
                                             if (object.R_STATUS !== 'A') {
                                                 list = new Reservas().moreRooms(object, row, list);
-                                                resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                                resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data, row.count_people, resume, row.shift, currentDay);
                                             }
                                         }
                                     }
@@ -124,7 +114,7 @@ export class Reservas {
                             } else {
                                 if (object.R_STATUS !== 'A') {
                                     list = new Reservas().moreRooms(object, row, list);
-                                    resume = new Reservas().countFoods(row.service, row.count_people, resume);
+                                    resume = new Reservas().countFoods(row.service, row.entry_data, row.exit_data,row.count_people, resume, row.shift, currentDay);
                                 }
                                 
                             }
@@ -147,11 +137,12 @@ export class Reservas {
         })
     }
 
-    countFoods(service: string, stayCount: number, resume: any) {
+    countFoods(service: string, entry: string, exit: string, stayCount: number, resume: any, shift: any, currentDay: any) {
         if (service === 'MP') {
             resume.total_people.mp = resume.total_people.mp + stayCount;
             resume.stays.mp = resume.stays.mp + 1;
         } else if (service === 'PC') {
+            console.log(shift, entry, exit, service, currentDay);
             resume.total_people.pc = resume.total_people.pc + stayCount;
             resume.stays.pc = resume.stays.pc + 1;
         } else if (service === 'DE') {
@@ -298,7 +289,7 @@ export class Reservas {
         const year = date.getFullYear();
 
         if (!showHour) {
-        return `${year}-${month}-${dayOfMonth}`;
+            return `${year}-${month}-${dayOfMonth}`;
         }
 
         const hour = new Reservas().formatNumbers(date.getHours());

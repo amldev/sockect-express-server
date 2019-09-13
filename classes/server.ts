@@ -48,7 +48,7 @@ export default class Server {
         const request = require('request');
         request.get({
             headers: { 'content-type': 'application/json' },
-            url: 'http://localhost:5000/reservas/actual'
+            url: 'http://localhost:5000/reservas/2019-06-02'
         }, function (error: any, response: Response, body: any) {
             const re_ = JSON.parse(body);
             const reservas = re_.list;
