@@ -42,13 +42,13 @@ export default class Server {
         this.update();
         this.httpServer.listen(this.port, callback);
     }
-
+// http://127.0.0.1:8000/api/stays/add/clients
     update() {
         console.log('Start to add / update active stays in current day');
         const request = require('request');
         request.get({
             headers: { 'content-type': 'application/json' },
-            url: 'http://localhost:5000/reservas/2019-06-02'
+            url: 'http://localhost:5000/reservas/actual'
         }, function (error: any, response: Response, body: any) {
             const re_ = JSON.parse(body);
             const reservas = re_.list;
