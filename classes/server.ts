@@ -43,7 +43,10 @@ export default class Server {
         this.httpServer.listen(this.port, callback);
     }
 // http://127.0.0.1:8000/api/stays/add/clients
+
     update() {
+        const DEV = 'http://127.0.0.1:8000/api/stays/add/clients';
+        const PROD = 'https://anartz-mugika.com/gesti-hotels/web/api/stays/add/clients'
         console.log('Start to add / update active stays in current day');
         const request = require('request');
         request.get({
@@ -55,7 +58,7 @@ export default class Server {
             const request = require('request');
             request.post({
                 headers: { 'content-type': 'application/json' },
-                url: 'http://127.0.0.1:8000/api/stays/add/clients',
+                url: PROD,
                 body: JSON.stringify(
                     { 
                         'list': reservas
